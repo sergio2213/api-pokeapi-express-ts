@@ -6,7 +6,7 @@ const app = express()
 const PORT = 3000 // <-- cambiar si lo desea
 
 const corsOptions = {
-  origin: 'http://localhost:5173', // <-- cambiar esto por el dominio desde el cual se realizan las solicitudes
+  origin: ['http://localhost:5173', 'http://localhost:4173'],
   optionsSuccessStatus: 200
 }
 
