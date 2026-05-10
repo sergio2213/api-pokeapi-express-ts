@@ -1,22 +1,41 @@
-import { Request, Response } from "express";
+import { NextFunction, Request, Response } from "express";
 import pokemonService from "../services/pokemon.service";
 
-const getPokemonByName = async (req: Request, res: Response): Promise<void> => {
-  const { name } = req.params;
-  const poke = await pokemonService.getByName(name);
-  if (poke !== null) {
-    res.json(poke);
-  } else {
-    res.status(404).json({ message: "Pokémon not found" });
+const getOne = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const { identifier } = req.params;
+    const pokemon = await pokemonService.fetchPokemonByName(identifier);
+    res.json(pokemon);
+  } catch (error) {
+    next(error);
   }
 };
 
-const listPokemon = async (req: Request, res: Response): Promise<void> => {
-  const pokemon = await pokemonService.getAll(); // PokemonWrapper
-  res.json(pokemon);
+const index = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+): Promise<void> => {
+  try {
+    const limit = parseInt(req.query.limit as string) || 20;
+    const offset = parseInt(req.query.offset as string) || 0;
+    const baseUrl = `${req.protocol}://${req.get("host")}/api/v1/pokemon`;
+    const paginatedData = await pokemonService.getPaginatedPokemon(
+      limit,
+      offset,
+      baseUrl,
+    );
+    res.json(paginatedData);
+  } catch (error) {
+    next(error);
+  }
 };
 
 export default {
-  getPokemonByName,
-  listPokemon,
+  getOne,
+  index,
 };
